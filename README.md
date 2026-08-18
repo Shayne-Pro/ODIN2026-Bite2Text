@@ -9,6 +9,13 @@ Transformer V3 structured predictor, multiview photographic evidence, clinical
 report retrieval, precision-oriented fact filtering, and contradiction-aware
 reranking.
 
+## Method overview
+
+![Fact-constrained multimodal retrieval pipeline](figures/ODIN2026_Task2_Technical_Route.svg)
+
+The editable source is available in
+[`ODIN2026_Task2_Technical_Route.drawio`](figures/ODIN2026_Task2_Technical_Route.drawio).
+
 ## Repository structure
 
 - `task2_bite2text/ptv3_finetune/`: PTv3 dataset preparation, training, and OOF evaluation.
