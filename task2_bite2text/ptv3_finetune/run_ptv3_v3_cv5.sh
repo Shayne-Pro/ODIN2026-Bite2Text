@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PROJECT_ROOT=/home/aiserver/sunyan/Project/ODIN_2026
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+PROJECT_ROOT=${BITE2TEXT_PROJECT_ROOT:-$(cd -- "${SCRIPT_DIR}/../.." && pwd)}
 TASK_ROOT=${PROJECT_ROOT}/task2_bite2text
 REPO_DIR=${TASK_ROOT}/Bits2Bites
 DATA_ROOT=${REPO_DIR}/data/bite2text_ptv3_surface32k_v3_official_12head_cv5
@@ -13,9 +14,9 @@ STAGE1_EPOCHS=${BITE2TEXT_STAGE1_EPOCHS:-10}
 STAGE2_EPOCHS=${BITE2TEXT_STAGE2_EPOCHS:-60}
 BASE_SEED=${BITE2TEXT_CV_BASE_SEED:-20260810}
 
-export CUDA_HOME=/usr/local/cuda-12.4
-export PATH=/usr/local/cuda-12.4/bin:/home/aiserver/.local/bin:${PATH}
-export LD_LIBRARY_PATH=/usr/local/cuda-12.4/lib64:${LD_LIBRARY_PATH:-}
+export CUDA_HOME=${CUDA_HOME:-/usr/local/cuda-12.4}
+export PATH=${CUDA_HOME}/bin:${PATH}
+export LD_LIBRARY_PATH=${CUDA_HOME}/lib64:${LD_LIBRARY_PATH:-}
 export CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-1}
 export PYTHONPATH=${REPO_DIR}:${PYTHONPATH:-}
 export WANDB_MODE=disabled
@@ -88,4 +89,3 @@ for fold in 1 2 3 4 5; do
   status "Fold ${fold}/5 complete"
 done
 status "CV5 WORKFLOW COMPLETE"
-

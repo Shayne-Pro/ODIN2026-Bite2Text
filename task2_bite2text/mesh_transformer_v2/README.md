@@ -11,11 +11,13 @@
 ## 冒烟训练
 
 ```bash
+export BITE2TEXT_PROJECT_ROOT="$(git rev-parse --show-toplevel)"
+cd "${BITE2TEXT_PROJECT_ROOT}/task2_bite2text/mesh_transformer_v2"
 docker build --network none -t odin2026-bite2text-mesh-transformer-v2:latest .
 
 docker run --rm --gpus 'device=1' --network none --user "$(id -u):$(id -g)" \
-  -v /home/aiserver/sunyan/Project/ODIN_2026/data/Bite2Text_raw:/data:ro \
-  -v /home/aiserver/sunyan/Project/ODIN_2026/task2_bite2text/mesh_baseline/data/manifest_v1:/manifest:ro \
+  -v "${BITE2TEXT_PROJECT_ROOT}/data/Bite2Text_raw:/data:ro" \
+  -v "${BITE2TEXT_PROJECT_ROOT}/task2_bite2text/mesh_baseline/data/manifest_v1:/manifest:ro" \
   -v "$PWD":/workspace \
   odin2026-bite2text-mesh-transformer-v2:latest /opt/mesh_transformer_v2/train.py \
   --manifest /manifest/manifest.jsonl --head-vocabs /manifest/head_vocabs.json \

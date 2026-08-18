@@ -1,3 +1,10 @@
+import os
+
+dataset_root = os.environ.get(
+    'BITE2TEXT_PTV3_DATA_ROOT',
+    'data/bite2text_ptv3_surface32k_v3_official_12head_full867',
+)
+
 weight = 'exp/dental/bite2text_ptv3_v3_official_12head_full867_stage1_frozen_seed20260815/model/model_last.pth'
 
 resume = False
@@ -74,7 +81,7 @@ data = {'names': ['right_molar_relation',
            'curve_wilson'],
  'train': {'type': 'Bite2TextDataset',
            'split': 'train',
-           'data_root': '/home/aiserver/sunyan/Project/ODIN_2026/task2_bite2text/Bits2Bites/data/bite2text_ptv3_surface32k_v3_official_12head_full867',
+           'data_root': dataset_root,
            'transform': [{'type': 'NormalizeCoord'},
                          {'type': 'RandomScale', 'scale': [0.95, 1.05]},
                          {'type': 'RandomShift', 'shift': ((-0.02, 0.02), (-0.02, 0.02), (-0.02, 0.02))},
@@ -111,7 +118,7 @@ data = {'names': ['right_molar_relation',
            'max_samples': 0},
  'val': {'type': 'Bite2TextDataset',
          'split': 'val',
-         'data_root': '/home/aiserver/sunyan/Project/ODIN_2026/task2_bite2text/Bits2Bites/data/bite2text_ptv3_surface32k_v3_official_12head_full867',
+         'data_root': dataset_root,
          'test_mode': False,
          'transform': [{'type': 'NormalizeCoord'},
                        {'type': 'GridSample',
@@ -140,7 +147,7 @@ data = {'names': ['right_molar_relation',
          'max_samples': 0},
  'test': {'type': 'Bite2TextDataset',
           'split': 'test',
-          'data_root': '/home/aiserver/sunyan/Project/ODIN_2026/task2_bite2text/Bits2Bites/data/bite2text_ptv3_surface32k_v3_official_12head_full867',
+          'data_root': dataset_root,
           'test_mode': False,
           'transform': [{'type': 'NormalizeCoord'},
                         {'type': 'GridSample',

@@ -87,6 +87,7 @@ private_data/
 *.webp
 *.png
 !docs/figures/*.png
+!figures/*.png
 
 # Trained models, embeddings, and serialized arrays
 *.pth
@@ -122,6 +123,15 @@ weights/
 *.rar
 artifacts/
 **/artifacts/
+output/pdf/
+
+# Recreated upstream and Docker build contexts
+.vendor/
+task2_bite2text/ptv3_submission/pointcept/
+task2_bite2text/ptv3_submission/scannormalizer/
+task2_bite2text/ptv3_submission/inference.py
+task2_bite2text/ptv3_submission/normalize_pair.py
+task2_bite2text/ptv3_submission/prepare_ptv3_dataset.py
 
 # Generated experiment outputs that may contain challenge labels/reports
 task2_bite2text/Bits2Bites_results/

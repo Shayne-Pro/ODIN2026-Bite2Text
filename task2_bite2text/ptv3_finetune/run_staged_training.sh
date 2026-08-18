@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PROJECT_ROOT=/home/aiserver/sunyan/Project/ODIN_2026
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+PROJECT_ROOT=${BITE2TEXT_PROJECT_ROOT:-$(cd -- "${SCRIPT_DIR}/../.." && pwd)}
 TASK_ROOT=${PROJECT_ROOT}/task2_bite2text
 REPO_DIR=${TASK_ROOT}/Bits2Bites
 CONFIG_DIR=${REPO_DIR}/configs/dental
 STATUS_LOG=${TASK_ROOT}/bite2text_ptv3_staged_status.log
 
-export CUDA_HOME=/usr/local/cuda-12.4
-export PATH=/usr/local/cuda-12.4/bin:/home/aiserver/.local/bin:${PATH}
-export LD_LIBRARY_PATH=/usr/local/cuda-12.4/lib64:${LD_LIBRARY_PATH:-}
+export CUDA_HOME=${CUDA_HOME:-/usr/local/cuda-12.4}
+export PATH=${CUDA_HOME}/bin:${PATH}
+export LD_LIBRARY_PATH=${CUDA_HOME}/lib64:${LD_LIBRARY_PATH:-}
 export CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-1}
 export PYTHONPATH=${REPO_DIR}:${PYTHONPATH:-}
 export WANDB_MODE=disabled
