@@ -2,7 +2,7 @@
 
 Reproducible source code and deployment entry points for `shayne`'s individual
 submission to [ODIN 2026 Task 2 — Bite2Text](https://odin2026.grand-challenge.org/).
-The method was developed by **YanSun**.
+The method was developed by **Yan Sun**.
 
 The final v9 system combines standardized intraoral-scan geometry, a Point
 Transformer V3 (PTv3) structured predictor, multiview photographic evidence,
