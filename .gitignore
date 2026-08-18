@@ -127,6 +127,7 @@ output/pdf/
 
 # Recreated upstream and Docker build contexts
 .vendor/
+.remote-edit/
 task2_bite2text/ptv3_submission/pointcept/
 task2_bite2text/ptv3_submission/scannormalizer/
 task2_bite2text/ptv3_submission/inference.py
