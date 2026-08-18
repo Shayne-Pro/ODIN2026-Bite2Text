@@ -1,0 +1,99 @@
+ODIN 2026 Bite2Text - Third-Party Notices
+==========================================
+
+This file records third-party projects referenced by or used to develop the
+ODIN 2026 Bite2Text submission. It does not grant rights to challenge data,
+clinical reports, trained weights, or other excluded assets.
+
+1. Bits2Bites / Pointcept
+-------------------------
+
+Project: https://github.com/AImageLab-zip/Bits2Bites
+Pinned commit: 8c3c685160c9cabe2462e9e23d2ffcd9ca78c63a
+License reported by the upstream repository: MIT
+
+The local PTv3 integration and compatibility patches were developed against
+this pinned revision. The upstream repository's LICENSE contains the following
+notice:
+
+MIT License
+
+Copyright (c) 2023 Pointcept
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+2. RadFact-Lite
+---------------
+
+Project: https://github.com/AImageLab-zip/radfact_lite
+Pinned commit: 053f680be1c57225f94d67b198a34aa871b1127d
+License reported by the upstream repository: MIT
+
+The repository contains an OpenAI-compatible evaluation adapter; it does not
+vendor the RadFact-Lite source. The upstream LICENSE contains the following
+notice:
+
+MIT License
+
+Copyright (c) 2026 Luca Lumetti
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+3. IOS-Normalizer
+-----------------
+
+Project: https://github.com/AImageLab-zip/IOS-Normalizer
+Pinned commit: ecebe110a15081ea435e5970bbe6cf472d8f2882
+
+No LICENSE file was exposed by the upstream repository when this notice was
+prepared on 18 August 2026. Its source and pretrained weights are therefore not
+redistributed here. Users must obtain them directly from the upstream project
+and confirm the terms that apply to their intended use.
+
+4. Challenge data and pretrained assets
+----------------------------------------
+
+ODIN 2026 and Bits2Bites datasets, patient-level clinical reports, pretrained
+weights, retrieval banks, and Docker/model archives are not distributed in
+this repository. Their use remains governed by the challenge and source-data
+terms under which they were obtained.
+
+Repository-wide licensing
+-------------------------
+
+No repository-wide license has yet been selected for the original ODIN 2026
+Bite2Text code. The notices above preserve applicable third-party terms but do
+not themselves grant a license to the original project code.
+
