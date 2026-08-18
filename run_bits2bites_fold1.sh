@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PROJECT_ROOT=/home/aiserver/sunyan/Project/ODIN_2026
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+PROJECT_ROOT=${BITE2TEXT_PROJECT_ROOT:-${SCRIPT_DIR}}
 REPO_DIR=${PROJECT_ROOT}/task2_bite2text/Bits2Bites
 RUN_NAME=ptv3_mesh_mtl_fold1_seed2026
 
-export CUDA_HOME=/usr/local/cuda-12.4
-export PATH=/usr/local/cuda-12.4/bin:/home/aiserver/.local/bin:${PATH}
-export LD_LIBRARY_PATH=/usr/local/cuda-12.4/lib64:${LD_LIBRARY_PATH:-}
+export CUDA_HOME=${CUDA_HOME:-/usr/local/cuda-12.4}
+export PATH=${CUDA_HOME}/bin:${PATH}
+export LD_LIBRARY_PATH=${CUDA_HOME}/lib64:${LD_LIBRARY_PATH:-}
 export CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-1}
 export PYTHONPATH=${REPO_DIR}:${PYTHONPATH:-}
 export WANDB_MODE=disabled

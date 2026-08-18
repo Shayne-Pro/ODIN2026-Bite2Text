@@ -93,7 +93,8 @@ terms under which they were obtained.
 Repository-wide licensing
 -------------------------
 
-No repository-wide license has yet been selected for the original ODIN 2026
-Bite2Text code. The notices above preserve applicable third-party terms but do
-not themselves grant a license to the original project code.
-
+The original ODIN 2026 Bite2Text code in this repository is released under the
+MIT License in the repository-level LICENSE file. That license does not alter
+third-party terms and does not grant rights to challenge data, patient-level
+records, reports, pretrained weights, retrieval banks, or excluded upstream
+source code.

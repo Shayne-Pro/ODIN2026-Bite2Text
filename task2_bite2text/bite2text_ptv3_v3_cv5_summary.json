@@ -116,7 +116,7 @@
         "recall": 0.459,
         "f1": 0.4368
       },
-      "model_best": "/home/aiserver/sunyan/Project/ODIN_2026/task2_bite2text/Bits2Bites/exp/dental/bite2text_ptv3_v3_official_12head_fold1_stage2_joint_seed20260810/model/model_best.pth"
+      "model_best": "task2_bite2text/Bits2Bites/exp/dental/bite2text_ptv3_v3_official_12head_fold1_stage2_joint_seed20260810/model/model_best.pth"
     },
     {
       "fold": 2,
@@ -233,7 +233,7 @@
         "recall": 0.4628,
         "f1": 0.4471
       },
-      "model_best": "/home/aiserver/sunyan/Project/ODIN_2026/task2_bite2text/Bits2Bites/exp/dental/bite2text_ptv3_v3_official_12head_fold2_stage2_joint_seed20260811/model/model_best.pth"
+      "model_best": "task2_bite2text/Bits2Bites/exp/dental/bite2text_ptv3_v3_official_12head_fold2_stage2_joint_seed20260811/model/model_best.pth"
     },
     {
       "fold": 3,
@@ -350,7 +350,7 @@
         "recall": 0.4887,
         "f1": 0.4501
       },
-      "model_best": "/home/aiserver/sunyan/Project/ODIN_2026/task2_bite2text/Bits2Bites/exp/dental/bite2text_ptv3_v3_official_12head_fold3_stage2_joint_seed20260812/model/model_best.pth"
+      "model_best": "task2_bite2text/Bits2Bites/exp/dental/bite2text_ptv3_v3_official_12head_fold3_stage2_joint_seed20260812/model/model_best.pth"
     },
     {
       "fold": 4,
@@ -467,7 +467,7 @@
         "recall": 0.4866,
         "f1": 0.4706
       },
-      "model_best": "/home/aiserver/sunyan/Project/ODIN_2026/task2_bite2text/Bits2Bites/exp/dental/bite2text_ptv3_v3_official_12head_fold4_stage2_joint_seed20260813/model/model_best.pth"
+      "model_best": "task2_bite2text/Bits2Bites/exp/dental/bite2text_ptv3_v3_official_12head_fold4_stage2_joint_seed20260813/model/model_best.pth"
     },
     {
       "fold": 5,
@@ -584,7 +584,7 @@
         "recall": 0.4552,
         "f1": 0.4359
       },
-      "model_best": "/home/aiserver/sunyan/Project/ODIN_2026/task2_bite2text/Bits2Bites/exp/dental/bite2text_ptv3_v3_official_12head_fold5_stage2_joint_seed20260814/model/model_best.pth"
+      "model_best": "task2_bite2text/Bits2Bites/exp/dental/bite2text_ptv3_v3_official_12head_fold5_stage2_joint_seed20260814/model/model_best.pth"
     }
   ],
   "best_epoch_statistics": {

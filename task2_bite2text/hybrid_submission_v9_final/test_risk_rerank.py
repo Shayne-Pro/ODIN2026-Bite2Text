@@ -13,6 +13,11 @@ import numpy as np
 SCRIPT_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPT_DIR))
 
+# The selector tests exercise no tensor operations. A tiny module stub keeps
+# source-level CI independent of the 5+ GB CUDA/PyTorch runtime image.
+torch_stub = types.ModuleType("torch")
+sys.modules.setdefault("torch", torch_stub)
+
 # Import only the retrieval logic without loading the production mesh pipeline.
 inference_stub = types.ModuleType("inference")
 for name in (

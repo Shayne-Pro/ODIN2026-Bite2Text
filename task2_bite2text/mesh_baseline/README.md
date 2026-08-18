@@ -16,15 +16,17 @@
 
 ## 构建与运行
 
-在服务器 `/home/aiserver/sunyan/Project/ODIN_2026/task2_bite2text/mesh_baseline` 中执行。Docker 镜像使用本机已有的 PyTorch CUDA 基础镜像，不访问网络。
+在仓库根目录设置 `BITE2TEXT_PROJECT_ROOT`，然后进入本目录执行。Docker 镜像使用 PyTorch CUDA 基础镜像；训练和推理均可在禁用网络的容器中运行。
 
 ```bash
+export BITE2TEXT_PROJECT_ROOT="$(git rev-parse --show-toplevel)"
+cd "${BITE2TEXT_PROJECT_ROOT}/task2_bite2text/mesh_baseline"
 docker build --network none -t odin2026-bite2text-mesh-baseline:latest .
 
 # 创建一次训练清单；output 目录必须不存在
 docker run --rm --network none --user "$(id -u):$(id -g)" \
-  -v /home/aiserver/sunyan/Project/ODIN_2026/data/Bite2Text_raw:/data:ro \
-  -v /home/aiserver/sunyan/Project/ODIN_2026/task2_bite2text/structured_labels_v2:/labels:ro \
+  -v "${BITE2TEXT_PROJECT_ROOT}/data/Bite2Text_raw:/data:ro" \
+  -v "${BITE2TEXT_PROJECT_ROOT}/task2_bite2text/structured_labels_v2:/labels:ro" \
   -v "$PWD":/workspace \
   odin2026-bite2text-mesh-baseline:latest /opt/baseline/prepare_manifest.py \
   --labels-csv /labels/report_labels.csv --data-root /data --output-dir /workspace/data/manifest_v1
@@ -34,7 +36,7 @@ GPU 1 冒烟训练（8 个病例、1 epoch）：
 
 ```bash
 docker run --rm --gpus 'device=1' --network none --user "$(id -u):$(id -g)" \
-  -v /home/aiserver/sunyan/Project/ODIN_2026/data/Bite2Text_raw:/data:ro \
+  -v "${BITE2TEXT_PROJECT_ROOT}/data/Bite2Text_raw:/data:ro" \
   -v "$PWD":/workspace \
   odin2026-bite2text-mesh-baseline:latest /opt/baseline/train.py \
   --manifest /workspace/data/manifest_v1/manifest.jsonl \
@@ -59,7 +61,7 @@ docker run --rm --gpus 'device=1' --network none --user "$(id -u):$(id -g)" \
 
 ```bash
 docker run --rm --gpus 'device=1' --network none --user "$(id -u):$(id -g)" \
-  -v /home/aiserver/sunyan/Project/ODIN_2026/data/Bite2Text_raw:/data:ro \
+  -v "${BITE2TEXT_PROJECT_ROOT}/data/Bite2Text_raw:/data:ro" \
   -v "$PWD":/workspace \
   odin2026-bite2text-mesh-baseline:latest /opt/baseline/evaluate.py \
   --manifest /workspace/data/manifest_v1/manifest.jsonl \
@@ -73,7 +75,7 @@ docker run --rm --gpus 'device=1' --network none --user "$(id -u):$(id -g)" \
 
 ```bash
 docker run --rm --gpus 'device=1' --network none --user "$(id -u):$(id -g)" \
-  -v /home/aiserver/sunyan/Project/ODIN_2026/data/Bite2Text_raw:/data:ro \
+  -v "${BITE2TEXT_PROJECT_ROOT}/data/Bite2Text_raw:/data:ro" \
   -v "$PWD":/workspace \
   odin2026-bite2text-mesh-baseline:latest /opt/baseline/evaluate_ensemble.py \
   --manifest /workspace/data/manifest_v1/manifest.jsonl \

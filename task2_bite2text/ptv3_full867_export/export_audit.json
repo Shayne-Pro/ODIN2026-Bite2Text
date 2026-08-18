@@ -34,5 +34,5 @@
       "sha256": "af2b064367d3f73b2b38158fe4f96ba3656f3e8f37f151181abba15bef3fe125"
     }
   },
-  "source_checkpoint": "/home/aiserver/sunyan/Project/ODIN_2026/task2_bite2text/Bits2Bites/exp/dental/bite2text_ptv3_v3_official_12head_full867_stage2_joint_seed20260815/model/model_last.pth"
+  "source_checkpoint": "task2_bite2text/Bits2Bites/exp/dental/bite2text_ptv3_v3_official_12head_full867_stage2_joint_seed20260815/model/model_last.pth"
 }
