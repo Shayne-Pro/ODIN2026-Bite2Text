@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PROJECT_ROOT=/home/aiserver/sunyan/Project/ODIN_2026
+REPO_DIR=${PROJECT_ROOT}/task2_bite2text/Bits2Bites
+RUN_NAME=ptv3_mesh_mtl_fold1_seed2026
+
+export CUDA_HOME=/usr/local/cuda-12.4
+export PATH=/usr/local/cuda-12.4/bin:/home/aiserver/.local/bin:${PATH}
+export LD_LIBRARY_PATH=/usr/local/cuda-12.4/lib64:${LD_LIBRARY_PATH:-}
+export CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-1}
+export PYTHONPATH=${REPO_DIR}:${PYTHONPATH:-}
+export WANDB_MODE=disabled
+
+cd "${REPO_DIR}"
+mkdir -p logs
+
+.venv/bin/python -u tools/train.py \
+  --config-file configs/dental/cls-ptv3-base.py \
+  --num-gpus 1 \
+  --num-machines 1 \
+  --dist-url auto \
+  --options \
+  save_path=exp/dental/${RUN_NAME} \
+  data.train.data_root=data/dental_landmarks_mesh \
+  data.val.data_root=data/dental_landmarks_mesh \
+  data.test.data_root=data/dental_landmarks_mesh \
+  seed=2026 \
+  epoch=200 \
+  eval_epoch=200 \
+  batch_size=8 \
+  batch_size_val=8 \
+  batch_size_test=8 \
+  num_worker=4 \
+  enable_wandb=False \
+  2>&1 | tee logs/${RUN_NAME}.log
