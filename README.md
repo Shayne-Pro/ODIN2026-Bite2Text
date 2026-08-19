@@ -142,7 +142,7 @@ mount the model assets through the supplied script:
 export BITE2TEXT_TEST_INPUT_ROOT=/path/to/test/input
 export BITE2TEXT_TEST_CASE=CASE_ID
 export BITE2TEXT_TEST_GPU=0
-./do_test_run.sh
+./task2_bite2text/hybrid_submission_v9_final/do_test_run.sh
 ```
 
 The script runs with `--network none`, a 16 GB memory limit, and one GPU. It
