@@ -13,6 +13,13 @@ contradiction-risk reranking.
 - Final v9 evaluation: [3fac9821-fc34-45c4-bb1b-df4b912e28f7](https://odin2026.grand-challenge.org/evaluation/3fac9821-fc34-45c4-bb1b-df4b912e28f7/)
 - Exact submitted algorithm source: [`0d0d83e`](https://github.com/Shayne-Pro/ODIN2026-Bite2Text/tree/0d0d83e1a962f361bc3b70e4d36ae129d338708b)
 
+## Official challenge result
+
+On the [ODIN 2026 Bite2Text final leaderboard](https://odin2026.grand-challenge.org/challenge-winners/),
+`shayne` is listed 5th by Arena Score (942; win rate 41.9%) for submission
+`e5588ed6`. The organizer-reported hidden-test metrics are RadFact-F1 `0.3795`,
+BLEU-4 `0.2151`, METEOR `0.4512`, and aggregate score `0.3702`.
+
 ## Method overview
 
 ![Fact-constrained multimodal retrieval pipeline](figures/ODIN2026_Task2_Technical_Route.svg)
@@ -36,7 +43,7 @@ The editable source is available in
 
 On strict patient-separated five-fold out-of-fold evaluation over 867 labeled
 cases, v9 obtained BLEU-4 `0.2684` and METEOR `0.4700`. These are development
-results, not organizer-reported hidden-test RadFact scores.
+results, distinct from the organizer-reported hidden-test metrics above.
 
 ## Repository structure
 
@@ -64,9 +71,10 @@ cd report
 tectonic --outdir ../output/pdf ODIN2026_Task2_shayne_TechnicalReport.tex
 ```
 
-The PDF output is intentionally ignored until the organizer publishes the
-final v9 RadFact-F1 and Final Score. Update the two not-released table cells
-before submitting the final PDF.
+The report source preserves the 18 August 2026 snapshot, including its
+then-unreleased v9 RadFact-F1 and final-score cells. The later official results
+are recorded above rather than retroactively changing the report. Generated
+PDF output is ignored by Git.
 
 ## Reproducibility scope
 
