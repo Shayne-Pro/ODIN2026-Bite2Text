@@ -6,6 +6,7 @@ from __future__ import annotations
 import sys
 import types
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 import numpy as np
@@ -96,6 +97,40 @@ class RiskRerankTests(unittest.TestCase):
         index, summary = self.select(enabled=False)
         self.assertEqual(index, 0)
         self.assertFalse(summary["reranked"])
+
+    def test_unsupported_route_does_not_require_contradiction(self) -> None:
+        self.confidence = {head: 0.5 for head in self.heads}
+        with patch("hybrid_inference.unsupported_sentence_count", side_effect=[5, 0]):
+            index, summary = self.select(enabled=True)
+        self.assertEqual(index, 1)
+        self.assertEqual(summary["reason"], "unsupported")
+        self.assertEqual(summary["baseline_contradiction"], 0)
+
+    def test_below_both_activation_thresholds_keeps_baseline(self) -> None:
+        self.confidence = {head: 0.5 for head in self.heads}
+        with patch("hybrid_inference.unsupported_sentence_count", side_effect=[4, 0]):
+            index, summary = self.select(enabled=True)
+        self.assertEqual(index, 0)
+        self.assertFalse(summary["reranked"])
+
+    def test_candidate_outside_score_margin_is_rejected(self) -> None:
+        self.config["margin"] = 0.0
+        index, summary = self.select(enabled=True)
+        self.assertEqual(index, 0)
+        self.assertFalse(summary["reranked"])
+
+    def test_new_unsupported_sentence_blocks_contradiction_improvement(self) -> None:
+        # Isolate the hard veto from the separate soft penalty.
+        self.config["unsupported_penalty"] = 0.0
+        with patch("hybrid_inference.unsupported_sentence_count", side_effect=[0, 1]):
+            index, summary = self.select(enabled=True)
+        self.assertEqual(index, 0)
+        self.assertFalse(summary["reranked"])
+        self.config["no_new_unsupported"] = False
+        with patch("hybrid_inference.unsupported_sentence_count", side_effect=[0, 1]):
+            index, summary = self.select(enabled=True)
+        self.assertEqual(index, 1)
+        self.assertTrue(summary["reranked"])
 
 
 if __name__ == "__main__":

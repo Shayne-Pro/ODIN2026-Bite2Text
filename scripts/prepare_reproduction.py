@@ -9,6 +9,14 @@ from pathlib import Path
 import shutil
 
 
+def file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
 def stage_ios(raw: Path, output: Path, excluded: tuple[str, ...] = ()) -> dict:
     if not raw.is_dir():
         raise ValueError(f"Missing extracted Bite2Text patient root: {raw}")
@@ -60,6 +68,19 @@ def assemble(output: Path, ptv3: Path, data: Path, photo: Path,
     import numpy as np  # Only assembly needs NumPy; no checkpoint deserialization.
     reports = json.loads(sources["retrieval_reports.json"].read_text())
     labels = json.loads(sources["retrieval_labels.json"].read_text())
+    # Match the runtime's cross-file binding checks before declaring assembly
+    # successful. Matching shapes and patient order alone do not detect a
+    # stale report/index pair or labels derived from a different report file.
+    if reports.get("index_sha256") != file_sha256(sources["retrieval_index.npz"]):
+        raise ValueError("Retrieval index checksum does not match reports metadata")
+    if labels.get("retrieval_reports_sha256") != file_sha256(sources["retrieval_reports.json"]):
+        raise ValueError("Retrieval report checksum does not match labels metadata")
+    if labels.get("version") != "bite2text-hybrid-labels-v1":
+        raise ValueError("Unsupported retrieval label asset version")
+    if not isinstance(reports.get("reports"), list) or len(reports["reports"]) != 867:
+        raise ValueError("Expected 867 retrieval reports")
+    if not isinstance(labels.get("target_values"), list) or len(labels["target_values"]) != 867:
+        raise ValueError("Expected 867 retrieval label records")
     with np.load(sources["retrieval_index.npz"], allow_pickle=False) as index:
         if index["descriptors"].shape != (867, 3720):
             raise ValueError("Expected a (867, 3720) retrieval index")
@@ -69,7 +90,7 @@ def assemble(output: Path, ptv3: Path, data: Path, photo: Path,
     hashes = {}
     for name, path in sources.items():
         shutil.copyfile(path, output / name)
-        hashes[name] = hashlib.sha256((output / name).read_bytes()).hexdigest()
+        hashes[name] = file_sha256(output / name)
     (output / "retrained_asset_hashes.json").write_text(json.dumps(hashes, indent=2) + "\n")
     return {"files": len(sources), "output": str(output), "exact_submitted_weights": False}
 

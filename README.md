@@ -74,29 +74,35 @@ cd report
 tectonic --outdir ../output/pdf ODIN2026_Task2_shayne_TechnicalReport.tex
 ```
 
-The report source preserves the 18 August 2026 snapshot, including its
-then-unreleased v9 RadFact-F1 and final-score cells. The later official results
-are recorded above rather than retroactively changing the report. Generated
+The report source and route figure preserve the 18 August 2026 snapshot,
+including then-unreleased score cells and the original validation wording.
+For current interpretation, use the protocol limitations above: the historical
+"strict OOF" wording does not establish fully nested end-to-end independence.
+The risk gate has two activation routes (unsupported-pattern count or
+contradiction risk), and missing photo slots are masked rather than always
+forcing geometry-only inference. See the [final v9 description](task2_bite2text/hybrid_submission_v9_final/README.md)
+and [current reproduction protocol](reproducibility/README.md) for these
+clarifications. Historical files are not retroactively rewritten. Generated
 PDF output is ignored by Git.
 
-## Reproduce the final v9 submission (Q51 / Q54 / Q58)
+## Reproduce the final v9 submission
 
 Start with the [complete reproduction README](reproducibility/README.md).
 It includes two routes: run the exact published submission, or rebuild from
 authorized raw data through Bits2Bites pretraining, IOS normalization, weak
 labels, PTv3/photo cross-validation, fixed full-867 training and retrieval assets.
 
-- [Q51: complete image + model bundle](https://drive.google.com/file/d/1K4eBy1yikNn5vnwmpTz215F-FK8_KDiU/view)
-- [Q54: self-trained model weights](https://drive.google.com/file/d/1gjF4qhSN8jg0XQ_ysvf9toVUjn4hxH4a/view)
+- [Full submission bundle: image and runtime model assets](https://drive.google.com/file/d/1K4eBy1yikNn5vnwmpTz215F-FK8_KDiU/view)
+- [Trained model weights](https://drive.google.com/file/d/1gjF4qhSN8jg0XQ_ysvf9toVUjn4hxH4a/view)
 - [Asset sizes, SHA-256 and exact submitted image ID](reproducibility/v9_assets.json)
 - [Validation performed and remaining limits](reproducibility/validation/README.md)
 
-Q54 alone cannot run the complete algorithm. The runtime needs **nine** files,
+The weights-only archive cannot run the complete algorithm. The runtime needs **nine** files,
 including `ios_normalizer_best.pt` and all three retrieval-bank files. These
 assets remain outside Git; the download links do not change their license terms.
 
 ```bash
-python3 scripts/v9_assets.py unpack-q51 artifacts/ODIN2026_Bite2Text_v9_Final_Submission.zip artifacts/v9-release
+python3 scripts/v9_assets.py unpack-submission artifacts/ODIN2026_Bite2Text_v9_Final_Submission.zip artifacts/v9-release
 python3 scripts/v9_assets.py verify-model artifacts/v9-release/model
 ```
 
@@ -113,14 +119,17 @@ These checks require no challenge data, credentials, weights, CUDA or PyTorch:
 python3 -m venv .venv-tests
 .venv-tests/bin/python -m pip install --requirement requirements-test.txt
 .venv-tests/bin/python -m unittest discover -s tests -v
+.venv-tests/bin/python -m unittest -v task2_bite2text.labeling.test_parse_bite2text_reports task2_bite2text.ptv3_finetune.test_report_renderer
 (
   cd task2_bite2text/hybrid_submission_v9_final
   ../../.venv-tests/bin/python -m unittest -v test_report_sanitizer.py test_risk_rerank.py
 )
 ```
 
-The 11 original decision-control tests are retained, with additional tests for
-asset integrity, safe extraction, read-only input staging and geometry validation.
+The original decision-control tests are retained, with additional tests for
+asset integrity, safe extraction, read-only input staging, cohort validation,
+report parsing and rendering. Repository checks also cover tracked Python and
+shell syntax, local Markdown links and public-document naming.
 GitHub Actions runs the source tests on pull requests. Passing them is not a
 claim that complete GPU retraining or hidden-test evaluation has been repeated.
 
@@ -128,8 +137,11 @@ claim that complete GPU retraining or hidden-test evaluation has been repeated.
 
 The final container accepts paired upper/lower IOS meshes and an intraoral-photo
 directory through the Grand Challenge input sockets. Missing or unreadable
-photographs trigger a deterministic geometry-only fallback instead of failing
-the case. The output contract is:
+individual views leave masked slots; remaining usable photos can still
+contribute. If no usable photographs remain or photo inference fails, the
+default path falls back to geometry-only scoring instead of failing the case.
+For validation, `BITE2TEXT_PHOTO_STRICT=1` makes photo-inference failures fatal.
+The output contract is:
 
 ```json
 {"report": "Generated orthodontic diagnostic report."}

@@ -62,17 +62,19 @@ def extract_model(archive: Path, destination: Path, manifest: dict) -> None:
     verify_model(destination, manifest)
 
 
-def unpack_q51(archive: Path, destination: Path, manifest: dict) -> None:
-    verify_file(archive, manifest["archives"]["q51"])
+def unpack_submission(archive: Path, destination: Path, manifest: dict) -> None:
+    release = manifest["archives"]["submission"]
+    verify_file(archive, release)
     if destination.exists():
         raise ValueError(f"Refusing to overwrite: {destination}")
     with zipfile.ZipFile(archive) as bundle:
         members = bundle.infolist()
         names = [safe_flat_name(m.filename) for m in members]
+        # Published archive member names are immutable compatibility metadata.
         expected = {manifest["image_archive"]["filename"], manifest["model_archive"]["filename"],
-                    "README_Q51.txt", "SHA256SUMS_Q51.txt"}
+                    *release["metadata_files"]}
         if len(set(names)) != len(names) or set(names) != expected:
-            raise ValueError("Unexpected Q51 members")
+            raise ValueError("Unexpected submission bundle members")
         destination.mkdir(parents=True)
         for member, name in zip(members, names):
             with bundle.open(member) as source, (destination / name).open("xb") as target:
@@ -85,9 +87,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
     verify = sub.add_parser("verify-archive")
-    verify.add_argument("kind", choices=("q51", "q54"))
+    verify.add_argument("kind", choices=("submission", "weights"))
     verify.add_argument("archive", type=Path)
-    unpack = sub.add_parser("unpack-q51")
+    unpack = sub.add_parser("unpack-submission")
     unpack.add_argument("archive", type=Path)
     unpack.add_argument("destination", type=Path)
     model = sub.add_parser("verify-model")
@@ -96,8 +98,8 @@ def main() -> None:
     manifest = json.loads(MANIFEST.read_text())
     if args.command == "verify-archive":
         verify_file(args.archive, manifest["archives"][args.kind])
-    elif args.command == "unpack-q51":
-        unpack_q51(args.archive, args.destination, manifest)
+    elif args.command == "unpack-submission":
+        unpack_submission(args.archive, args.destination, manifest)
     else:
         verify_model(args.directory, manifest)
     print("PASS: published v9 asset integrity verified (no checkpoint deserialization)")

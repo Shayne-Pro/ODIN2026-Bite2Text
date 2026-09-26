@@ -433,6 +433,12 @@ def main() -> int:
     config = {
         "input": str(input_path),
         "selected_patient_ids": [row["patient_id"] for row in rows],
+        # Completed samples are keyed by patient ID. Bind the run to report
+        # contents as well, so replacing predictions at the same path cannot
+        # silently reuse scores from an earlier model.
+        "selected_input_sha256": hashlib.sha256(
+            canonical_json(rows).encode("utf-8")
+        ).hexdigest(),
         "model": args.model,
         "base_url": args.base_url.rstrip("/"),
         "api_key_env": args.api_key_env,

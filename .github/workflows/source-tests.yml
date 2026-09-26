@@ -25,6 +25,8 @@ jobs:
         run: python -m unittest -v test_report_sanitizer.py test_risk_rerank.py
       - name: Check reproduction helpers
         run: python -m unittest discover -s tests -v
+      - name: Check report parser and renderer
+        run: python -m unittest -v task2_bite2text.labeling.test_parse_bite2text_reports task2_bite2text.ptv3_finetune.test_report_renderer
       - name: Check shell syntax
         run: |
           for script in scripts/bootstrap_upstreams.sh scripts/build_v9_image.sh \

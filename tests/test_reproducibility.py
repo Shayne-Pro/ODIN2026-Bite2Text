@@ -5,9 +5,12 @@ import importlib.util
 import io
 import json
 from pathlib import Path
+import subprocess
+import sys
 import tarfile
 import tempfile
 import unittest
+import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -28,6 +31,9 @@ cohort = load("cohort", ROOT / "scripts/check_reproduction_data.py")
 class AssetsTests(unittest.TestCase):
     def test_release_manifest(self):
         manifest = json.loads(assets.MANIFEST.read_text())
+        self.assertEqual(manifest["schema_version"], 2)
+        self.assertEqual(set(manifest["archives"]), {"submission", "weights"})
+        self.assertEqual(len(manifest["archives"]["submission"]["metadata_files"]), 2)
         self.assertEqual(len(manifest["model_files"]), 9)
         for entry in [*manifest["archives"].values(), manifest["image_archive"],
                       manifest["model_archive"], *manifest["model_files"].values()]:
@@ -84,8 +90,99 @@ class AssetsTests(unittest.TestCase):
                     assets.extract_model(archive, root / "model", manifest)
                 self.assertFalse((root / "model").exists())
 
+    def make_submission(self, root, extra_member=None):
+        model_archive, manifest = self.make_archive(root)
+        image_bytes = b"synthetic-docker-export"
+        image_name = "image.tar.gz"
+        manifest["model_archive"]["filename"] = model_archive.name
+        manifest["image_archive"] = {"filename": image_name, "bytes": len(image_bytes),
+                                     "sha256": hashlib.sha256(image_bytes).hexdigest()}
+        # Keep compatibility with metadata filenames in the already-published ZIP.
+        metadata = json.loads(assets.MANIFEST.read_text())["archives"]["submission"]["metadata_files"]
+        archive = root / "submission.zip"
+        with zipfile.ZipFile(archive, "w") as bundle:
+            bundle.write(model_archive, model_archive.name)
+            bundle.writestr(image_name, image_bytes)
+            for name in metadata:
+                bundle.writestr(name, b"synthetic metadata")
+            if extra_member:
+                bundle.writestr(extra_member, b"unexpected")
+        manifest["archives"] = {"submission": {"bytes": archive.stat().st_size,
+            "sha256": assets.sha256(archive), "metadata_files": metadata}}
+        return archive, manifest
+
+    def test_unpack_submission_preserves_published_layout(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            archive, manifest = self.make_submission(root)
+            assets.unpack_submission(archive, root / "release", manifest)
+            assets.verify_model(root / "release/model", manifest)
+            for name in manifest["archives"]["submission"]["metadata_files"]:
+                self.assertTrue((root / "release" / name).is_file())
+            with self.assertRaises(ValueError):
+                assets.unpack_submission(archive, root / "release", manifest)
+
+    def test_submission_rejects_unexpected_members_before_extraction(self):
+        for member in ("unexpected.txt", "../escape.txt"):
+            with self.subTest(member=member), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                archive, manifest = self.make_submission(root, member)
+                with self.assertRaises(ValueError):
+                    assets.unpack_submission(archive, root / "release", manifest)
+                self.assertFalse((root / "release").exists())
+
+    def test_semantic_command_line_names(self):
+        result = subprocess.run([sys.executable, str(ROOT / "scripts/v9_assets.py"),
+                                 "--help"], capture_output=True, text=True, check=True)
+        self.assertIn("unpack-submission", result.stdout)
+        result = subprocess.run([sys.executable, str(ROOT / "scripts/v9_assets.py"),
+                                 "verify-archive", "--help"], capture_output=True, text=True, check=True)
+        self.assertIn("{submission,weights}", result.stdout)
+
 
 class InputTests(unittest.TestCase):
+    def test_assembly_rejects_stale_retrieval_hashes(self):
+        import numpy as np
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            ptv3, data, retrieval = (root / name for name in ("ptv3", "data", "retrieval"))
+            (ptv3 / "model").mkdir(parents=True)
+            data.mkdir()
+            retrieval.mkdir()
+            for file in (ptv3 / "model/model_last.pth", ptv3 / "config.py",
+                         root / "photo.pt", root / "view.pt", root / "normalizer.pt"):
+                file.write_bytes(b"synthetic-not-a-checkpoint")
+            (data / "head_vocabs.json").write_text('{}')
+            (data / "full_dataset_audit.json").write_text('{"train_cases": 867}')
+            patients = [f"synthetic{i}" for i in range(867)]
+            np.savez(retrieval / "retrieval_index.npz", patient_ids=patients,
+                     descriptors=np.zeros((867, 3720), dtype=np.float32),
+                     mean=np.zeros(3720), scale=np.ones(3720))
+            (retrieval / "retrieval_reports.json").write_text(json.dumps({
+                "patient_ids": patients, "reports": ["Synthetic report."] * 867,
+                "index_sha256": "0" * 64}))
+            (retrieval / "retrieval_labels.json").write_text(json.dumps({
+                "version": "bite2text-hybrid-labels-v1", "patient_ids": patients,
+                "target_values": [{} for _ in patients], "retrieval_reports_sha256": "0" * 64}))
+            def assemble():
+                return prepare.assemble(root / "model", ptv3, data, root / "photo.pt",
+                                        root / "view.pt", root / "normalizer.pt", retrieval)
+            with self.assertRaisesRegex(ValueError, "index checksum"):
+                assemble()
+            self.assertFalse((root / "model").exists())
+            report_file = retrieval / "retrieval_reports.json"
+            reports = json.loads(report_file.read_text())
+            reports["index_sha256"] = assets.sha256(retrieval / "retrieval_index.npz")
+            report_file.write_text(json.dumps(reports))
+            with self.assertRaisesRegex(ValueError, "report checksum"):
+                assemble()
+            self.assertFalse((root / "model").exists())
+            label_file = retrieval / "retrieval_labels.json"
+            labels = json.loads(label_file.read_text())
+            labels["retrieval_reports_sha256"] = assets.sha256(report_file)
+            label_file.write_text(json.dumps(labels))
+            self.assertEqual(assemble()["files"], 9)
+
     def test_cohort_rejects_leaking_fold(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

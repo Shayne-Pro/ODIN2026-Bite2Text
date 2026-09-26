@@ -19,7 +19,8 @@ reported as the final multimodal v9 configuration.
 
 This directory adapts the all-200 Bits2Bites PT-v3m1 mesh encoder to seven
 auditable Bite2Text report facts. The report text is rendered deterministically
-from the seven predictions; the system does not invent unsupported findings.
+from the seven predictions, without free-form language-model decoding.
+Incorrect predicted labels can still produce incorrect findings.
 
 Training is intentionally staged:
 

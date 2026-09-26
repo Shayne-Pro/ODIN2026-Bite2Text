@@ -1,10 +1,10 @@
 # Validation record — 26 September 2026
 
-This records the **checks performed for the Q58 reproduction update**, not a
+This records the **checks performed for the reproduction update**, not a
 claim that all historical experiments were retrained. No existing training
 directory, original checkpoint, submitted image tag or raw dataset was modified.
 
-## Passed in this update
+## Earlier reproduction checks
 
 | Check | Result / scope |
 |---|---|
@@ -14,8 +14,8 @@ directory, original checkpoint, submitted image tag or raw dataset was modified.
 | Fresh upstream acquisition | Cloned the two public pinned commits into a previously absent vendor directory; all four patches applied successfully; second/third bootstrap runs were idempotent |
 | Patched training imports | Copied the freshly patched Pointcept source to the isolated server directory; `MultiTaskClassifier(freeze_backbone=...)`, `Bite2TextDataset` and the evaluator registry import successfully with CUDA hidden, using the existing training environment |
 | Patched normalizer loading | The freshly patched normalizer loads the verified published checkpoint on CPU with the required seed argument (20260809), using the existing normalizer environment |
-| Q51/Q54 archive integrity | Both complete local release ZIPs match the published sizes and SHA-256 values |
-| Q51 unpacking | Actual 4.48 GB bundle extracted into a new local directory; image archive and all nine model files match their recorded hashes |
+| Release archive integrity | Both complete local release ZIPs match the published sizes and SHA-256 values |
+| Full submission unpacking | Actual 4.48 GB bundle extracted into a new local directory; image archive and all nine model files match their recorded hashes |
 | Server model consistency | The server's nine final model assets independently pass the same release verifier |
 | Submitted image identity | Existing server Docker image ID matches `v9_assets.json`; no image tag overwritten |
 | Report parsing | Rebuilt from the authorized raw training data in an isolated server directory; `report_labels.csv` and `patient_splits.csv` are byte-identical to the historical v3 artifacts |
@@ -40,6 +40,39 @@ and are not included in this commit. Source tests ran locally with Python 3.9
 and NumPy 1.26.4; CI additionally specifies Python 3.11. Data reconstruction
 used the existing Linux development environment, not a newly provisioned machine.
 
+## Repository review follow-up
+
+A subsequent local source review on the same date made public documentation,
+CLI commands and archive keys use descriptive names, while preserving the
+published ZIP bytes and historical metadata filenames. It also repaired:
+
+- A missing `report_renderer.py` dependency in bootstrap staging and the base
+  image's `COPY` instruction. This was a source-rebuild defect; the existing
+  published image was not rebuilt or changed.
+- Model assembly that previously checked retrieval dimensions/order without
+  verifying the index-to-reports and reports-to-labels checksum bindings.
+- Output validation that could be disabled by Python's `-O` option.
+- Local RadFact resume signatures that previously omitted prediction/reference
+  content, allowing stale completed samples when a file was replaced in place.
+  Historical run directories are preserved; the strengthened signature requires
+  a new run directory for old configurations without content hashes.
+
+The follow-up passes **50 CPU/source tests**: 22 repository/asset/output/resume
+tests, 13 parser/renderer tests and 15 sanitizer/risk-gate tests. The build,
+asset-binding, optimized-output and changed-report-signature regressions were
+observed failing before their respective fixes. Syntax checks cover all tracked
+Python and shell files; local Markdown file links and public-document naming
+are also checked. Both local release ZIPs and all nine previously extracted
+runtime assets pass the current verifier. Published hashes and URLs are unchanged.
+
+These are local test results, not a new GitHub Actions run or an end-to-end GPU
+build. No API evaluation, model retraining, hidden-test scoring, archive rewrite
+or server workload was performed in this follow-up. The historical report and
+figure remain snapshots; the main README explains their validation and risk-gate
+wording limitations. Before adapting the photo decoder to an untrusted upload
+service, constrain external MetaImage data paths to the authorized input tree;
+the submitted runtime decoder was not changed in this review.
+
 ## Not rerun / not established
 
 - All-200 pretraining, five-fold PTv3/photo fitting and full-867 fitting were
@@ -61,12 +94,12 @@ used the existing Linux development environment, not a newly provisioned machine
 - Full pipeline independence / cross-dataset patient non-overlap is not
   established by these checks. See the main reproduction README's limitations.
 
-## What Q58 can truthfully mean
+## Reproducibility scope
 
 The repository now documents assets, environments, data policies, complete
 training/reconstruction commands, evaluation boundaries and validation outcomes.
-After this draft PR is reviewed and merged (or if the questionnaire links to
-this exact branch/commit), **“Yes, a README sufficient to reproduce the
-experiments is provided”** refers to that documentation and source completeness.
-It does **not** assert an independent full GPU rerun or numerical identity.
-Until merged, the default branch still contains the previous documentation.
+The reproduction update was merged in
+[PR #6](https://github.com/Shayne-Pro/ODIN2026-Bite2Text/pull/6) on 26 September
+2026. These checks establish documentation/source completeness and the tested
+asset-reconstruction steps. They do **not** establish an independent full GPU
+rerun, clinical validity or numerical identity after retraining.
