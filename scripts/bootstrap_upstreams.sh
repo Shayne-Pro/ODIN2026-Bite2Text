@@ -31,8 +31,8 @@ checkout_pinned() {
     return
   fi
   if [[ "${current_commit}" == "${commit}" && ! -e "${destination}/README.md" ]]; then
-    git -C "${destination}" restore --source=HEAD --staged --worktree :/
-    return
+    echo "Incomplete upstream checkout: ${destination}; use a new BITE2TEXT_VENDOR_ROOT." >&2
+    exit 1
   fi
   if [[ -n "$(git -C "${destination}" status --porcelain)" ]]; then
     echo "Refusing to switch a modified upstream checkout: ${destination}" >&2
@@ -62,7 +62,17 @@ IOS_NORMALIZER_DIR=${VENDOR_ROOT}/IOS-Normalizer
 checkout_pinned "${BITS2BITES_URL}" "${BITS2BITES_COMMIT}" "${BITS2BITES_DIR}"
 apply_patch_once "${BITS2BITES_DIR}" "${PROJECT_ROOT}/bits2bites_repro_fixes.patch"
 apply_patch_once "${BITS2BITES_DIR}" "${PROJECT_ROOT}/bits2bites_standalone_test_fix.patch"
+apply_patch_once "${BITS2BITES_DIR}" "${PROJECT_ROOT}/bits2bites_bite2text_training.patch"
+if [[ -e "${BITS2BITES_DIR}/pointcept/datasets/bite2text.py" ]] && \
+  ! cmp -s "${PROJECT_ROOT}/task2_bite2text/ptv3_finetune/bite2text_dataset.py" \
+    "${BITS2BITES_DIR}/pointcept/datasets/bite2text.py"; then
+  echo "Refusing to overwrite a different local Bite2Text adapter; use a new vendor root." >&2
+  exit 1
+fi
+cp "${PROJECT_ROOT}/task2_bite2text/ptv3_finetune/bite2text_dataset.py" \
+  "${BITS2BITES_DIR}/pointcept/datasets/bite2text.py"
 checkout_pinned "${IOS_NORMALIZER_URL}" "${IOS_NORMALIZER_COMMIT}" "${IOS_NORMALIZER_DIR}"
+apply_patch_once "${IOS_NORMALIZER_DIR}" "${PROJECT_ROOT}/ios_normalizer_repro.patch"
 
 test -d "${BITS2BITES_DIR}/pointcept"
 test -d "${IOS_NORMALIZER_DIR}/src/scannormalizer"

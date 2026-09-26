@@ -4,7 +4,7 @@ set -euo pipefail
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
 PROJECT_ROOT=${BITE2TEXT_PROJECT_ROOT:-$(cd -- "${SCRIPT_DIR}/../.." && pwd)}
 TASK_ROOT=${PROJECT_ROOT}/task2_bite2text
-REPO_DIR=${TASK_ROOT}/Bits2Bites
+REPO_DIR=${BITE2TEXT_BITS2BITES_ROOT:-${BITE2TEXT_VENDOR_ROOT:-${PROJECT_ROOT}/.vendor}/Bits2Bites}
 DATA_ROOT=${REPO_DIR}/data/bite2text_ptv3_surface32k_v3_official_12head_cv5
 CONFIG_DIR=${REPO_DIR}/configs/dental
 ENCODER=${REPO_DIR}/exp/dental/ptv3_mesh_mtl_all200_seed2026/model/ptv3_encoder_all200_seed2026.pth

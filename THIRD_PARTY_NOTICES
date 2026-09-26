@@ -79,8 +79,11 @@ Pinned commit: ecebe110a15081ea435e5970bbe6cf472d8f2882
 
 No LICENSE file was exposed by the upstream repository when this notice was
 prepared on 18 August 2026. Its source and pretrained weights are therefore not
-redistributed here. Users must obtain them directly from the upstream project
-and confirm the terms that apply to their intended use.
+vendored here as a complete source tree or weights. The reproduction patch
+records local modifications against the pinned upstream; this does not grant
+an upstream license. Users must obtain the upstream source and confirm the
+terms that apply to their intended use. Separately linked release assets are
+not relicensed by this repository's MIT license.
 
 4. Challenge data and pretrained assets
 ----------------------------------------

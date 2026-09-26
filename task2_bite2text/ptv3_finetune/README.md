@@ -1,5 +1,22 @@
 # Bite2Text PTv3 staged fine-tuning
 
+## Final v9 recipe (current)
+
+Use the [complete reproduction README](../../reproducibility/README.md),
+especially B3–B5 and B7–B8. Final v9 uses **12 heads**, a shared all-200
+Bits2Bites initialization, five-fold development training (10 frozen + 60 joint
+epochs), and a fixed all-867 model (10 frozen + 47 joint epochs, no validation,
+last checkpoint). It constrains report retrieval; it is not the seven-head
+template-only system described below. The bootstrap installs `bite2text_dataset.py`
+and all necessary upstream training patches. Paths default to `.vendor/Bits2Bites`
+and can be overridden by `BITE2TEXT_BITS2BITES_ROOT`.
+
+The section below records the **earlier seven-head baseline only**. Its epoch-49
+result, unused photograph socket and sealed development split must not be
+reported as the final multimodal v9 configuration.
+
+## Historical seven-head baseline
+
 This directory adapts the all-200 Bits2Bites PT-v3m1 mesh encoder to seven
 auditable Bite2Text report facts. The report text is rendered deterministically
 from the seven predictions; the system does not invent unsupported findings.

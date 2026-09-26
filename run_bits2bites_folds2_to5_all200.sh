@@ -4,7 +4,7 @@ set -euo pipefail
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
 PROJECT_ROOT=${BITE2TEXT_PROJECT_ROOT:-${SCRIPT_DIR}}
 TASK_ROOT=${PROJECT_ROOT}/task2_bite2text
-REPO_DIR=${TASK_ROOT}/Bits2Bites
+REPO_DIR=${BITE2TEXT_BITS2BITES_ROOT:-${BITE2TEXT_VENDOR_ROOT:-${PROJECT_ROOT}/.vendor}/Bits2Bites}
 DATA_ROOT=${REPO_DIR}/data/dental_landmarks_mesh
 ALL_ROOT=${REPO_DIR}/data/dental_landmarks_mesh_all200
 EXP_ROOT=${REPO_DIR}/exp/dental
@@ -18,7 +18,7 @@ export CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-1}
 export PYTHONPATH=${REPO_DIR}:${PYTHONPATH:-}
 export WANDB_MODE=disabled
 
-mkdir -p "${TASK_ROOT}"
+mkdir -p "${TASK_ROOT}" "${REPO_DIR}/logs"
 exec 9>"${TASK_ROOT}/bits2bites_cv_all200.lock"
 if ! flock -n 9; then
   echo "Another Bits2Bites CV/all-200 workflow holds the lock." >&2
@@ -173,7 +173,7 @@ train_all200() {
   fi
 
   status "Extracting portable encoder-only checkpoint"
-  "${REPO_DIR}/.venv/bin/python" "${TASK_ROOT}/extract_bits2bites_encoder.py" \
+  "${REPO_DIR}/.venv/bin/python" "${PROJECT_ROOT}/extract_bits2bites_encoder.py" \
     --checkpoint "${save_dir}/model/model_last.pth" \
     --output "${save_dir}/model/ptv3_encoder_all200_seed2026.pth" \
     --upstream-commit "${UPSTREAM_COMMIT}" \
@@ -184,16 +184,19 @@ train_all200() {
 }
 
 status "Workflow started on CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES}"
-for fold in 2 3 4 5; do
-  train_fold "${fold}"
-done
+if [[ "${BITE2TEXT_BITS_SKIP_CV:-0}" != "1" ]]; then
+  for fold in ${BITE2TEXT_BITS_FOLDS:-2 3 4 5}; do
+    [[ "${fold}" =~ ^[1-5]$ ]] || { echo "Invalid fold: ${fold}" >&2; exit 1; }
+    train_fold "${fold}"
+  done
 
-status "Aggregating five-fold metrics"
-"${REPO_DIR}/.venv/bin/python" "${TASK_ROOT}/aggregate_bits2bites_cv.py" \
-  --exp-root "${EXP_ROOT}" \
-  --output-json "${TASK_ROOT}/Bits2Bites_5fold_summary.json" \
-  --output-md "${TASK_ROOT}/Bits2Bites_5fold_summary.md" \
-  2>&1 | tee "${REPO_DIR}/logs/ptv3_mesh_mtl_5fold_aggregate.log"
+  status "Aggregating five-fold metrics"
+  "${REPO_DIR}/.venv/bin/python" "${PROJECT_ROOT}/aggregate_bits2bites_cv.py" \
+    --exp-root "${EXP_ROOT}" \
+    --output-json "${TASK_ROOT}/Bits2Bites_5fold_summary.json" \
+    --output-md "${TASK_ROOT}/Bits2Bites_5fold_summary.md" \
+    2>&1 | tee "${REPO_DIR}/logs/ptv3_mesh_mtl_5fold_aggregate.log"
+fi
 
 prepare_all200
 train_all200

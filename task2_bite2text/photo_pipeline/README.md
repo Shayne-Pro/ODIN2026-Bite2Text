@@ -1,6 +1,11 @@
 # Bite2Text 口内照五视图流水线
 
-该目录实现 Task 2 照片分支的第一阶段：数据审计、五视图分类、全局唯一分配和固定布局 Montage。
+该目录包含最终 v9 的照片训练与评估流水线。完整可执行命令见
+[复现指南 B6–B8](../../reproducibility/README.md#b6-photos-view-selection-cv-final-model)，
+包括环境安装、视图分类、照片缓存、五折训练和 867 例全量训练。
+历史最终配置的 structural3 视图分类器实际训练 **6 epochs**（最佳为 epoch 2），
+不是命令行默认的 8 epochs。最终多视图模型训练 10 epochs。
+视图分类器并未按外层五折重新训练，因此不能把整条流水线称为完全嵌套验证。
 
 标准视图顺序为：
 

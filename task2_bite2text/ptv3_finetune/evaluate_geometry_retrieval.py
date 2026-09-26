@@ -27,12 +27,14 @@ def descriptor_from_coord(
     coord: np.ndarray, bins_1d: int = 32, bins_2d: int = 24
 ) -> np.ndarray:
     coord = np.asarray(coord, dtype=np.float64).copy()
+    if coord.ndim != 2 or coord.shape[1] != 3 or len(coord) < 4 or not np.isfinite(coord).all():
+        raise ValueError("Expected finite paired-jaw coordinates with shape (N, 3), N >= 4")
     if len(coord) % 2:
-        raise ValueError(f"Expected equal paired-jaw point counts: {path}")
+        raise ValueError("Expected equal paired-jaw point counts")
     coord -= coord.mean(axis=0, keepdims=True)
     radius = np.linalg.norm(coord, axis=1).max()
     if radius <= 0:
-        raise ValueError(f"Degenerate point cloud: {path}")
+        raise ValueError("Degenerate point cloud")
     coord /= radius
     jaws = np.split(coord, 2)
     features: list[np.ndarray] = []
