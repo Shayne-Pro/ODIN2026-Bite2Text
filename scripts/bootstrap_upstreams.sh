@@ -79,7 +79,7 @@ test -d "${IOS_NORMALIZER_DIR}/src/scannormalizer"
 rsync -a --delete "${BITS2BITES_DIR}/pointcept/" "${PTV3_CONTEXT}/pointcept/"
 rsync -a --delete "${IOS_NORMALIZER_DIR}/src/scannormalizer/" "${PTV3_CONTEXT}/scannormalizer/"
 
-for source_name in inference.py normalize_pair.py prepare_ptv3_dataset.py; do
+for source_name in inference.py normalize_pair.py prepare_ptv3_dataset.py report_renderer.py; do
   cp "${PROJECT_ROOT}/task2_bite2text/ptv3_finetune/${source_name}" \
     "${PTV3_CONTEXT}/${source_name}"
 done

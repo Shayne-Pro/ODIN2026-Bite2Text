@@ -56,7 +56,7 @@ RUN sed -i \
     && sed -i '/from pointcept\.engines\.hooks import HookBase/d' /opt/app/pointcept/models/modules.py \
     && sed -i 's/class PointModel(PointModule, HookBase):/class PointModel(PointModule):/' /opt/app/pointcept/models/modules.py
 
-COPY inference.py normalize_pair.py prepare_ptv3_dataset.py /opt/app/
+COPY inference.py normalize_pair.py prepare_ptv3_dataset.py report_renderer.py /opt/app/
 
 RUN chown -R user:user /opt/app /opt/ml/ios-normalizer
 

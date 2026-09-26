@@ -1,16 +1,16 @@
-# Reproduce the final Bite2Text v9 system (Q58)
+# Reproduce the final Bite2Text v9 system
 
 This is the executable recipe for **Task 2 only**, not the earlier seven-head
 baseline. Run commands from the repository root in **Bash on Linux/amd64**.
 Read [validation](validation/README.md) for what has actually been retested.
 The historical submitted source is `0d0d83e1a962f361bc3b70e4d36ae129d338708b`;
-the corrections in this branch recover missing training/build dependencies.
+the reproduction tooling recovers missing training/build dependencies.
 
 There are two different reproduction targets:
 
 | Route | Required assets | What it reproduces |
 |---|---|---|
-| A: published submission | Q51 bundle + an authorized input case | Exact submitted image and checkpoint files; offline inference |
+| A: published submission | Full submission bundle + an authorized input case | Exact submitted image and checkpoint files; offline inference |
 | B: retrain | Authorized Bits2Bites and Bite2Text training data, upstream pretrained weights, CUDA development environment | Data preparation, CV, fixed full-data training, retrieval-bank reconstruction and new runtime assets |
 
 Retraining is **not guaranteed byte-identical** across CUDA, GPU, library or
@@ -27,11 +27,11 @@ not a component of inference or the official challenge evaluator.
 Download into `artifacts/` using the browser (large Drive downloads may show a
 confirmation page; do not save that HTML as a ZIP):
 
-- **Q51 complete submission:** [ODIN2026_Bite2Text_v9_Final_Submission.zip](https://drive.google.com/file/d/1K4eBy1yikNn5vnwmpTz215F-FK8_KDiU/view), 4,479,620,106 bytes.
-- **Q54 self-trained weights:** [Bite2Text_v9_public_weights.zip](https://drive.google.com/file/d/1gjF4qhSN8jg0XQ_ysvf9toVUjn4hxH4a/view), 125,784,118 bytes.
+- **Full submission bundle:** [ODIN2026_Bite2Text_v9_Final_Submission.zip](https://drive.google.com/file/d/1K4eBy1yikNn5vnwmpTz215F-FK8_KDiU/view), 4,479,620,106 bytes.
+- **Trained model weights:** [Bite2Text_v9_public_weights.zip](https://drive.google.com/file/d/1gjF4qhSN8jg0XQ_ysvf9toVUjn4hxH4a/view), 125,784,118 bytes.
 
-Q51 contains the Docker export **and a separate model archive**; both are
-required. Q54 alone is insufficient: it omits the pretrained IOS-Normalizer
+The full submission bundle contains the Docker export **and a separate model archive**;
+both are required. The weights-only archive is insufficient: it omits the pretrained IOS-Normalizer
 and the report/label/index retrieval bank. Neither contains the all-200
 initialization checkpoint, which Route B trains and exports explicitly.
 The [machine-readable manifest](v9_assets.json) records all hashes and the
@@ -39,9 +39,9 @@ expected Docker image ID. Public access is not a replacement for the applicable
 dataset/model licenses; original-code MIT licensing does not relicense these assets.
 
 ```bash
-python3 scripts/v9_assets.py verify-archive q51 artifacts/ODIN2026_Bite2Text_v9_Final_Submission.zip
-python3 scripts/v9_assets.py verify-archive q54 artifacts/Bite2Text_v9_public_weights.zip
-python3 scripts/v9_assets.py unpack-q51 artifacts/ODIN2026_Bite2Text_v9_Final_Submission.zip artifacts/v9-release
+python3 scripts/v9_assets.py verify-archive submission artifacts/ODIN2026_Bite2Text_v9_Final_Submission.zip
+python3 scripts/v9_assets.py verify-archive weights artifacts/Bite2Text_v9_public_weights.zip
+python3 scripts/v9_assets.py unpack-submission artifacts/ODIN2026_Bite2Text_v9_Final_Submission.zip artifacts/v9-release
 python3 scripts/v9_assets.py verify-model artifacts/v9-release/model
 docker load --input artifacts/v9-release/odin2026-bite2text-hybrid-photo-test-v9_2026-08-18T11-22-00.039286625+08-00.tar.gz
 docker image inspect --format '{{.Id}}' odin2026-bite2text-hybrid-photo-test-v9:latest
@@ -53,6 +53,8 @@ If this tag already points at your own image, record/tag that image separately
 before loading. The unpacker refuses existing destinations and verifies hashes
 **before** any checkpoint deserialization. Only load trusted PyTorch checkpoints.
 Allow space for the ZIP, extracted image archive and expanded Docker layers.
+The manifest retains the published archive's historical metadata filenames for
+compatibility; the archive bytes, download links and checksums are unchanged.
 
 The model mount contains exactly these nine required assets:
 
@@ -293,7 +295,7 @@ The final checkpoint's `best_metric_value=-inf` is expected with evaluation off.
 For fixed final training only, CV training is optional, but **fold assignment
 generation remains required** for the photo cohort. Full-data training does not
 reselect 47 using any hidden-test result. No original encoder weights are shipped
-in Q54, so B3 is mandatory unless you already have that exact initialization.
+in the weights-only archive, so B3 is mandatory unless you already have that exact initialization.
 
 ### B6. Photos: view selection, CV, final model
 

@@ -8,6 +8,7 @@
 - 不要把 Key 写入 `.env`、脚本、终端历史或 Git；
 - `run_config.json` 和缓存均不包含 Key；
 - 已在聊天、日志或其他明文位置出现过的 Key 应尽快轮换。
+- 真实报告将发送给配置的外部模型服务；只有具备相应数据处理授权时才运行。该工具不是最终容器的组成部分。
 
 ## 安装
 
@@ -41,16 +42,22 @@ unset RADFACT_API_KEY
 
 ## 自检
 
+先指定已生成且获授权用于评估的预测文件（每行包含 `patient_id`、`prediction`、`reference`）。默认路径指向不随 Git 分发的历史实验产物，干净克隆不能直接使用默认值：
+
+```bash
+RADFACT_INPUT=/absolute/path/to/authorized_predictions.jsonl
+```
+
 无密钥数据检查：
 
 ```bash
-.venv313/bin/python run_radfact_glm.py --dry-run --sample-size 10
+.venv313/bin/python run_radfact_glm.py --input "$RADFACT_INPUT" --dry-run --sample-size 10
 ```
 
 API 和 JSON 结构化输出探测：
 
 ```bash
-.venv313/bin/python run_radfact_glm.py --probe --run-dir runs/probe_glm52
+.venv313/bin/python run_radfact_glm.py --input "$RADFACT_INPUT" --probe --run-dir runs/probe_glm52
 ```
 
 ## 运行
@@ -59,6 +66,7 @@ API 和 JSON 结构化输出探测：
 
 ```bash
 .venv313/bin/python run_radfact_glm.py \
+  --input "$RADFACT_INPUT" \
   --sample-size 10 \
   --seed 20260813 \
   --run-dir runs/v7_glm52_pilot10
@@ -68,6 +76,7 @@ API 和 JSON 结构化输出探测：
 
 ```bash
 .venv313/bin/python run_radfact_glm.py \
+  --input "$RADFACT_INPUT" \
   --sample-size 100 \
   --seed 20260813 \
   --run-dir runs/v7_glm52_pilot100
@@ -76,10 +85,11 @@ API 和 JSON 结构化输出探测：
 全量 867 例：
 
 ```bash
-.venv313/bin/python run_radfact_glm.py --run-dir runs/v7_glm52_full867
+.venv313/bin/python run_radfact_glm.py --input "$RADFACT_INPUT" --run-dir runs/v7_glm52_full867
 ```
 
 重复同一命令会跳过已完成病例，并复用 `llm_cache/` 中的解析、过滤和蕴含判断。
+运行签名包括所选病例的预测与参考文本哈希。更换文本、配置或复用旧版未记录内容哈希的运行目录时，会要求新建 `--run-dir`，避免沿用旧模型分数。原目录不会自动删除或覆盖；可用 `--cache-dir` 复用按请求内容寻址的缓存。
 
 ## 输出
 
