@@ -29,6 +29,20 @@ cohort = load("cohort", ROOT / "scripts/check_reproduction_data.py")
 
 
 class AssetsTests(unittest.TestCase):
+    def test_model_license_matches_published_checkpoints(self):
+        manifest = json.loads(assets.MANIFEST.read_text())
+        notice = (ROOT / "MODEL_LICENSE").read_text()
+        for name in ("model_final.pth", "photo_model_final.pt", "photo_view_classifier.pt"):
+            with self.subTest(checkpoint=name):
+                self.assertIn(name, notice)
+                self.assertIn(manifest["model_files"][name]["sha256"], notice)
+        self.assertIn(manifest["archives"]["weights"]["sha256"], notice)
+        self.assertIn("SPDX-License-Identifier: MIT", notice)
+        # Preserve the standard grant and disclaimer, not a shortened license.
+        mit_text = (ROOT / "LICENSE").read_text().split("\n\n", 1)[1]
+        self.assertIn(mit_text.strip(), notice)
+        self.assertIn("does not relicense IOS-Normalizer", notice)
+
     def test_release_manifest(self):
         manifest = json.loads(assets.MANIFEST.read_text())
         self.assertEqual(manifest["schema_version"], 2)

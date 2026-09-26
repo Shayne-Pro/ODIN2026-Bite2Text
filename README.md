@@ -152,7 +152,8 @@ The output contract is:
 - API credentials are read only from environment variables and must never be committed.
 - Patient-level images, meshes, reports, predictions, and cached LLM responses are excluded.
 - The container does not require network access during inference.
-- This project is for research and challenge evaluation only and is not a medical device.
+- This is a research/challenge implementation; no clinical validation or regulatory
+  approval is claimed. This notice does not add a use restriction to the MIT license.
 
 ## Upstream projects and licensing
 
@@ -166,6 +167,16 @@ or pretrained third-party model is stored in Git. The IOS-Normalizer patch
 contains only the changes needed against its pinned upstream; upstream terms
 continue to apply.
 
-Original project code is released under the [MIT License](LICENSE). This does
-not grant rights to challenge data, patient records, reports, pretrained
-weights, retrieval banks, or excluded upstream assets.
+Original project code and the author's trained-model contributions are released
+under the MIT License. See [LICENSE](LICENSE) for the code and
+[MODEL_LICENSE](MODEL_LICENSE) for model scope, the exact three released
+checkpoint hashes, and the full notice. The model declaration also covers the
+self-trained initialization encoder; it is not separately included in the final
+download bundles.
+
+This grant applies to the author's licensable contributions, not to third-party
+code/weights, challenge data, patient records, clinical reports or retrieval
+banks. Applicable upstream terms remain in force. The already-published ZIPs
+are unchanged; supply the model license notice alongside them when redistributing
+the covered checkpoints. This is not a blanket MIT license for the complete
+submission image or every runtime asset.
