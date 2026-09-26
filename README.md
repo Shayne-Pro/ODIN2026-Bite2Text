@@ -41,9 +41,12 @@ The editable source is available in
 | Contradiction-risk penalty | `0.5` |
 | Minimum contradiction improvement | `0.015` |
 
-On strict patient-separated five-fold out-of-fold evaluation over 867 labeled
-cases, v9 obtained BLEU-4 `0.2684` and METEOR `0.4700`. These are development
-results, distinct from the organizer-reported hidden-test metrics above.
+In the historical five-fold development evaluation over 867 labeled cases,
+v9 obtained BLEU-4 `0.2684` and METEOR `0.4700` with the organizer text evaluator.
+Task-specific folds are patient-separated, but shared pretraining, view selection
+and descriptor scaling mean this is **not fully nested end-to-end validation**.
+See [the protocol and its limitations](reproducibility/README.md#evaluation-limitations-and-honest-claims).
+These are development results, distinct from hidden-test metrics above.
 
 ## Repository structure
 
@@ -76,123 +79,50 @@ then-unreleased v9 RadFact-F1 and final-score cells. The later official results
 are recorded above rather than retroactively changing the report. Generated
 PDF output is ignored by Git.
 
-## Reproducibility scope
+## Reproduce the final v9 submission (Q51 / Q54 / Q58)
 
-This repository intentionally excludes challenge data, patient-level records,
-clinical-report banks, trained weights, Docker exports, and generated
-experiment artifacts. Consequently, cloning the repository is sufficient to
-inspect and test the source, but **not** to reproduce the exact submitted image
-without separately authorized model and data assets.
+Start with the [complete reproduction README](reproducibility/README.md).
+It includes two routes: run the exact published submission, or rebuild from
+authorized raw data through Bits2Bites pretraining, IOS normalization, weak
+labels, PTv3/photo cross-validation, fixed full-867 training and retrieval assets.
 
-The excluded v9 model directory must contain:
+- [Q51: complete image + model bundle](https://drive.google.com/file/d/1K4eBy1yikNn5vnwmpTz215F-FK8_KDiU/view)
+- [Q54: self-trained model weights](https://drive.google.com/file/d/1gjF4qhSN8jg0XQ_ysvf9toVUjn4hxH4a/view)
+- [Asset sizes, SHA-256 and exact submitted image ID](reproducibility/v9_assets.json)
+- [Validation performed and remaining limits](reproducibility/validation/README.md)
 
-```text
-model/
-├── config.py
-├── head_vocabs.json
-├── model_final.pth
-├── photo_model_final.pt
-├── photo_view_classifier.pt
-├── retrieval_index.npz
-├── retrieval_labels.json
-└── retrieval_reports.json
+Q54 alone cannot run the complete algorithm. The runtime needs **nine** files,
+including `ios_normalizer_best.pt` and all three retrieval-bank files. These
+assets remain outside Git; the download links do not change their license terms.
+
+```bash
+python3 scripts/v9_assets.py unpack-q51 artifacts/ODIN2026_Bite2Text_v9_Final_Submission.zip artifacts/v9-release
+python3 scripts/v9_assets.py verify-model artifacts/v9-release/model
 ```
 
-The retrieval reports and labels are derived from challenge training data and
-must be regenerated or obtained under the applicable challenge license. The
-full-data PTv3 checkpoint used for the submitted model has SHA-256
-`d7f3be80fadc361248b970a85861660ad527d7cf5e82232e563fb1fe363c6811`.
+Follow Route A in the reproduction README to load the image and run an authorized
+case offline. Source-image assembly remains `bash scripts/build_v9_image.sh`.
+The bootstrap pins both upstreams and applies the checked-in compatibility and
+training patches; a fresh checkout does not depend on private server edits.
 
 ## Source-level validation
 
-The final decision controls require only Python and NumPy at source-test time:
+These checks require no challenge data, credentials, weights, CUDA or PyTorch:
 
 ```bash
 python3 -m venv .venv-tests
 .venv-tests/bin/python -m pip install --requirement requirements-test.txt
-cd task2_bite2text/hybrid_submission_v9_final
-../../.venv-tests/bin/python -m unittest -v \
-  test_report_sanitizer.py test_risk_rerank.py
+.venv-tests/bin/python -m unittest discover -s tests -v
+(
+  cd task2_bite2text/hybrid_submission_v9_final
+  ../../.venv-tests/bin/python -m unittest -v test_report_sanitizer.py test_risk_rerank.py
+)
 ```
 
-Expected result: 11 tests pass. These tests cover the high-precision sentence
-filter and the conservative v9 candidate-replacement gate; they do not require
-challenge data, model weights, CUDA, or PyTorch. The same command runs in
-GitHub Actions for every pull request.
-
-## Container assembly
-
-Requirements:
-
-- Linux/amd64 Docker with Buildx;
-- NVIDIA Container Toolkit and a CUDA-capable GPU for end-to-end inference;
-- at least 16 GB host memory for the validated runtime profile;
-- Git and network access while fetching the two pinned upstream repositories;
-- the eight model assets listed above.
-
-Prepare the excluded upstream build context and build the complete
-PTv3-v3 -> hybrid-v5 -> final-v9 image chain with:
-
-```bash
-./scripts/build_v9_image.sh
-```
-
-`bootstrap_upstreams.sh` clones Bits2Bites and IOS-Normalizer at the pinned
-commits below, applies the two checked-in Bits2Bites compatibility patches, and
-copies only the required source into the ignored Docker build context. This
-avoids redistributing IOS-Normalizer while making the image-layer build order
-repeatable. Set `BITE2TEXT_VENDOR_ROOT` to keep the upstream clones elsewhere.
-
-For a local end-to-end test, place one case under the official input layout and
-mount the model assets through the supplied script:
-
-```bash
-export BITE2TEXT_TEST_INPUT_ROOT=/path/to/test/input
-export BITE2TEXT_TEST_CASE=CASE_ID
-export BITE2TEXT_TEST_GPU=0
-./task2_bite2text/hybrid_submission_v9_final/do_test_run.sh
-```
-
-The script runs with `--network none`, a 16 GB memory limit, and one GPU. It
-verifies that the output is a non-empty JSON object at
-`diagnostic-imaging-report.json` with exactly one `report` field.
-
-## Training reproduction
-
-Challenge data and derived reports cannot be redistributed. After obtaining
-the datasets under their applicable terms, set the project root instead of
-editing machine-specific paths:
-
-```bash
-export BITE2TEXT_PROJECT_ROOT="$PWD"
-export CUDA_HOME=/usr/local/cuda-12.4
-export CUDA_VISIBLE_DEVICES=0
-./scripts/bootstrap_upstreams.sh
-```
-
-Place the authorized training data under the layouts documented in
-`task2_bite2text/ptv3_finetune/README.md` and
-`task2_bite2text/photo_pipeline/README.md`. The principal workflows are:
-
-```bash
-# Patient-separated PTv3 cross-validation.
-./task2_bite2text/ptv3_finetune/run_ptv3_v3_cv5.sh
-
-# Unified 867-case PTv3 model with the cross-validated 47-epoch schedule.
-./task2_bite2text/ptv3_finetune/run_ptv3_v3_full867.sh
-
-# Photo branch entry points and flags.
-python3 task2_bite2text/photo_pipeline/train_multiview_12head.py --help
-python3 task2_bite2text/photo_pipeline/train_multiview_full.py --help
-```
-
-The full-data training config reads `BITE2TEXT_PTV3_DATA_ROOT` when supplied.
-Generated summaries store repository-relative paths so they remain portable.
-The photo-training packages are pinned in
-`task2_bite2text/photo_pipeline/requirements-training.txt`; the versions were
-read from the environment used for the final model. PTv3 dependencies remain
-locked by the pinned Bits2Bites `uv.lock`, while the submitted runtime packages
-are pinned directly in `task2_bite2text/ptv3_submission/Dockerfile`.
+The 11 original decision-control tests are retained, with additional tests for
+asset integrity, safe extraction, read-only input staging and geometry validation.
+GitHub Actions runs the source tests on pull requests. Passing them is not a
+claim that complete GPU retraining or hidden-test evaluation has been repeated.
 
 ## Input and output contract
 
@@ -219,8 +149,10 @@ the case. The output contract is:
 - [RadFact-Lite](https://github.com/AImageLab-zip/radfact_lite), pinned by the local adapter at `053f680be1c57225f94d67b198a34aa871b1127d`.
 
 See [`THIRD_PARTY_NOTICES`](THIRD_PARTY_NOTICES) for license texts and scope.
-No challenge dataset, organizer evaluator, IOS-Normalizer source, or pretrained
-third-party model is redistributed in this repository.
+No challenge dataset, organizer evaluator, complete IOS-Normalizer source tree,
+or pretrained third-party model is stored in Git. The IOS-Normalizer patch
+contains only the changes needed against its pinned upstream; upstream terms
+continue to apply.
 
 Original project code is released under the [MIT License](LICENSE). This does
 not grant rights to challenge data, patient records, reports, pretrained

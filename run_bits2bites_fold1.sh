@@ -3,7 +3,7 @@ set -euo pipefail
 
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
 PROJECT_ROOT=${BITE2TEXT_PROJECT_ROOT:-${SCRIPT_DIR}}
-REPO_DIR=${PROJECT_ROOT}/task2_bite2text/Bits2Bites
+REPO_DIR=${BITE2TEXT_BITS2BITES_ROOT:-${BITE2TEXT_VENDOR_ROOT:-${PROJECT_ROOT}/.vendor}/Bits2Bites}
 RUN_NAME=ptv3_mesh_mtl_fold1_seed2026
 
 export CUDA_HOME=${CUDA_HOME:-/usr/local/cuda-12.4}
@@ -15,6 +15,7 @@ export WANDB_MODE=disabled
 
 cd "${REPO_DIR}"
 mkdir -p logs
+.venv/bin/python tools/dental_fold.py --fold-val 1 --data-root data/dental_landmarks_mesh
 
 .venv/bin/python -u tools/train.py \
   --config-file configs/dental/cls-ptv3-base.py \

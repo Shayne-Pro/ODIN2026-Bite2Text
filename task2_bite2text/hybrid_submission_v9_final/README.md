@@ -21,7 +21,11 @@ original_score - 0.005 * unsupported_sentences - 0.5 * contradiction_risk
 - 其余病例保持 v8a.2 选择不变；
 - `BITE2TEXT_RISK_RERANK=0` 可精确回退至 v8a.2。
 
-## 严格五折 OOF（867 例）
+## 历史五折开发评估（867 例）
+
+完整复现步骤与验证记录见[复现指南](../../reproducibility/README.md)。
+任务头训练和检索候选按病例分折，但共享预训练、视图分类器和描述符统计量，
+因此并非整条流水线完全嵌套的独立验证。以下历史分数不等于本次已重新训练获得的结果。
 
 官方 evaluator：
 
