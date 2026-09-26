@@ -36,7 +36,12 @@ and the report/label/index retrieval bank. Neither contains the all-200
 initialization checkpoint, which Route B trains and exports explicitly.
 The [machine-readable manifest](v9_assets.json) records all hashes and the
 expected Docker image ID. Public access is not a replacement for the applicable
-dataset/model licenses; original-code MIT licensing does not relicense these assets.
+dataset/model licenses. The author's original code and trained-model contributions
+are MIT-licensed; [MODEL_LICENSE](../MODEL_LICENSE) identifies the covered
+checkpoints and provides the notice. Third-party preprocessing weights, data and
+retrieval banks retain their applicable terms. This declaration applies to the
+existing checkpoint bytes, so the published archives and hashes are unchanged.
+When redistributing the covered checkpoints, include that notice alongside them.
 
 ```bash
 python3 scripts/v9_assets.py verify-archive submission artifacts/ODIN2026_Bite2Text_v9_Final_Submission.zip
